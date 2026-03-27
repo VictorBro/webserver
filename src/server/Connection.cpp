@@ -693,102 +693,49 @@ std::string Connection::getCgiPath(const std::string &path) const
 std::string Connection::generateAutoIndex(const std::string& path, const std::string &target) const
 {
 	std::ostringstream oss;
-	oss << "<!DOCTYPE html>\n<html>\n<head>\n"
+	oss << "<!DOCTYPE html>\n"
+		<< "<html lang=\"en\">\n"
+		<< "<head>\n"
 		<< "  <meta charset=\"utf-8\">\n"
+		<< "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
 		<< "  <title>Index of " << path << "</title>\n"
-		<< "  <style>\n"
-		<< "    /* steel-blue auto-index */\n"
-		<< "    body {\n"
-		<< "      background-color: #f0f4f8; /* Light blue-grey background */\n"
-		<< "      font-family: Arial, sans-serif;\n"
-		<< "      margin: 0;\n"
-		<< "      padding: 20px;\n"
-		<< "      display: flex;\n"
-		<< "      flex-direction: column;\n"
-		<< "      align-items: center;\n"
-		<< "      min-height: 100vh;\n"
-		<< "    }\n"
-		<< "    h1.autoindex-title {\n"
-		<< "      display: inline-block;\n"
-		<< "      padding: 10px 20px;\n"
-		<< "      border-radius: 8px;\n"
-		<< "      color: #fff;\n"
-		<< "      text-align: center;\n"
-		<< "      margin: 20px 0;\n"
-		<< "      background: linear-gradient(135deg, #7db8d9 0%, #4a9cc7 50%, #3a7cbd 100%);\n"
-		<< "      box-shadow: 0 0 12px rgba(70,130,180,.7);\n"
-		<< "      text-shadow: 0 2px 4px rgba(0,0,0,0.2);\n"
-		<< "    }\n"
-		<< "    hr {\n"
-		<< "      width: 80%;\n"
-		<< "      border: none;\n"
-		<< "      height: 1px;\n"
-		<< "      background: rgba(70,130,180,0.3);\n"
-		<< "      margin: 20px 0;\n"
-		<< "    }\n"
-		<< "    ul.autoindex {\n"
-		<< "      list-style: none;\n"
-		<< "      margin: 0;\n"
-		<< "      padding: 0;\n"
-		<< "      text-align: center;\n"
-		<< "      width: 80%;\n"
-		<< "      max-width: 600px;\n"
-		<< "    }\n"
-		<< "    ul.autoindex li {\n"
-		<< "      margin: 8px 0;\n"
-		<< "    }\n"
-		<< "    ul.autoindex a {\n"
-		<< "      display: inline-block;\n"
-		<< "      padding: 6px 12px;\n"
-		<< "      border-radius: 6px;\n"
-		<< "      font-weight: 700;\n"
-		<< "      color: #fff;\n"
-		<< "      text-decoration: none;\n"
-		<< "      background: linear-gradient(135deg, #7db8d9 0%, #4a9cc7 50%, #3a7cbd 100%);\n"
-		<< "      box-shadow: 0 0 8px rgba(70,130,180,.6);\n"
-		<< "      transition: transform .3s, box-shadow .3s;\n"
-		<< "      min-width: 150px;\n"
-		<< "    }\n"
-		<< "    ul.autoindex a:hover {\n"
-		<< "      transform: translateY(-3px) scale(1.06);\n"
-		<< "      box-shadow: 0 0 12px rgba(70,130,180,.85), 0 0 22px rgba(70,130,180,.65);\n"
-		<< "    }\n"
-		<< "    .counter {\n"
-		<< "      background: rgba(70,130,180,0.1);\n"
-		<< "      border-radius: 8px;\n"
-		<< "      padding: 8px 16px;\n"
-		<< "      margin-top: 20px;\n"
-		<< "      font-weight: bold;\n"
-		<< "      color: #4682b4;\n"
-		<< "      box-shadow: 0 0 5px rgba(70,130,180,.3);\n"
-		<< "      text-align: center;\n"
-		<< "    }\n"
-		<< "  </style>\n"
-		<< "</head>\n<body>\n"
-		<< "  <h1 class=\"autoindex-title\">Index of " << path << "</h1>\n"
-		<< "  <hr>\n"
-		<< "  <ul class=\"autoindex\">\n";
+		<< "  <link rel=\"icon\" href=\"/favicon.ico\">\n"
+		<< "  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n"
+		<< "  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n"
+		<< "  <link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=Eczar:wght@400;700;800&display=swap\">\n"
+		<< "  <link rel=\"stylesheet\" href=\"/style/styles.css\">\n"
+		<< "</head>\n"
+		<< "<body>\n"
+		<< "  <nav><ul><li><a href=\"/\">Home</a></li></ul></nav>\n"
+		<< "  <main>\n"
+		<< "    <h2 class=\"subtitle\">Index of " << path << "</h2>\n"
+		<< "    <div class=\"line\"></div>\n"
+		<< "    <ul class=\"autoindex\">\n";
 
 	DIR* dir = opendir(path.c_str());
 	if (!dir) return "";
 
 	int entryCount = 0;
 	for (dirent* entry; (entry = readdir(dir));) {
-		if (entry->d_name[0] == '.') continue; // Skip hidden files
+		if (entry->d_name[0] == '.') continue;
 		std::string name = entry->d_name;
 		if (isDirectory(path + '/' + name)) name += '/';
-		oss << "    <li><a href=\"" << target + '/' + name << "\">" << name << "</a></li>\n";
+		oss << "      <li><a href=\"" << target + '/' + name << "\">" << name << "</a></li>\n";
 		entryCount++;
 	}
 	closedir(dir);
 
-	oss << "  </ul>\n"
-		<< "  <hr>\n";
-
+	oss << "    </ul>\n";
 	if (entryCount == 0)
-		oss << "  <div class=\"counter\">No entries found</div>\n";
-
-	oss << "</body>\n</html>\n";
+		oss << "    <p class=\"muted\">Directory is empty.</p>\n";
+	else
+	{
+		oss << "    <p class=\"muted\">" << entryCount << " entr";
+		oss << (entryCount == 1 ? "y" : "ies") << "</p>\n";
+	}
+	oss << "  </main>\n"
+		<< "</body>\n"
+		<< "</html>\n";
 	return oss.str();
 }
 

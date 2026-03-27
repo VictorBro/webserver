@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>POST Form</title>
+	<link rel="icon" href="/favicon.ico">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Eczar:wght@400;700;800&display=swap">
+	<link rel="stylesheet" href="/style/styles.css">
+</head>
+<body>
+	<nav>
+		<ul>
+			<li><a href="/index.html">Home</a></li>
+		</ul>
+	</nav>
+	<main>
+		<h2 class="subtitle">Submit Your Details</h2>
+		<form action="/cgi-bin/post.py" method="post" enctype="application/x-www-form-urlencoded">
+			<label for="username">Username:</label>
+			<input type="text" id="username" name="username" required>
+			<label for="emailaddress">Email Address:</label>
+			<input type="email" id="emailaddress" name="emailaddress" required>
+			<button type="submit">Submit</button>
+		</form>
+	</main>
+</body>
+</html>

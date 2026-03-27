@@ -36,8 +36,7 @@ def fail(msg, status="400 Bad Request"):
 	<head>
 		<title>Upload Error</title>
 		<meta charset="UTF-8">
-		<link rel="stylesheet" href="/style/style.css">
-		<link href="https://fonts.googleapis.com/css2?family=Eczar:wght@400;800&family=Annie+Use+Your+Telescope&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="/style/styles.css">
 	</head>
 	<body>
 		<nav>
@@ -106,6 +105,7 @@ try:
 		f.write(fileitem.file.read())
 
 	# Success response with proper UTF-8 encoding and CSS
+	sys.stdout.write("Status: 201 Created\r\n")
 	sys.stdout.write("Content-Type: text/html; charset=UTF-8\r\n\r\n")
 	sys.stdout.write(f"""
 	<!DOCTYPE html>
@@ -113,8 +113,7 @@ try:
 	<head>
 		<title>Upload Success</title>
 		<meta charset="UTF-8">
-		<link rel="stylesheet" href="/style/style.css">
-		<link href="https://fonts.googleapis.com/css2?family=Eczar:wght@400;800&family=Annie+Use+Your+Telescope&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="/style/styles.css">
 	</head>
 	<body>
 		<nav>
@@ -144,8 +143,7 @@ except Exception as e:
 	<head>
 		<title>Server Error</title>
 		<meta charset="UTF-8">
-		<link rel="stylesheet" href="/style/style.css">
-		<link href="https://fonts.googleapis.com/css2?family=Eczar:wght@400;800&family=Annie+Use+Your+Telescope&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="/style/styles.css">
 	</head>
 	<body>
 		<nav>
