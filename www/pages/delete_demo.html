@@ -4,127 +4,23 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Delete Files</title>
-
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-	<link href="https://fonts.googleapis.com/css2?family=Annie+Use+Your+Telescope&family=Eczar:wght@400..800&display=swap" rel="stylesheet" />
-
-	<!-- your global styles -->
-	<link rel="stylesheet" href="../style/style.css" />
-
-	<style>
-		.file-list {
-			width: 100%;
-			max-width: 800px;
-			margin: 20px auto;
-		}
-
-		.file-entry {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			padding: 10px;
-			margin: 10px 0;
-			background-color: rgba(70, 130, 180, 0.05);
-			border-radius: 8px;
-			box-shadow: 0 0 5px rgba(70, 130, 180, 0.2);
-			transition: all 0.3s ease;
-		}
-
-		.file-entry:hover {
-			background-color: rgba(70, 130, 180, 0.1);
-			transform: translateY(-2px);
-		}
-
-		.file-name {
-			flex-grow: 1;
-			padding: 0 15px;
-			font-weight: bold;
-			color: #333;
-		}
-
-		.file-controls {
-			display: flex;
-			gap: 10px;
-		}
-
-		.delete-btn {
-			background: linear-gradient(135deg, #5a9fd4 0%, #3a7cbd 100%);
-			color: white;
-			border: none;
-			padding: 6px 12px;
-			border-radius: 4px;
-			cursor: pointer;
-			font-weight: bold;
-			transition: all 0.2s ease;
-			box-shadow: 0 2px 5px rgba(70, 130, 180, 0.3);
-		}
-
-		.delete-btn:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 4px 8px rgba(70, 130, 180, 0.5);
-		}
-
-		.delete-btn:active {
-			transform: translateY(1px);
-		}
-
-		.empty-message {
-			text-align: center;
-			color: #666;
-			padding: 20px;
-			font-style: italic;
-		}
-
-		.status-area {
-			text-align: center;
-			margin: 20px 0;
-			padding: 10px;
-			border-radius: 8px;
-		}
-
-		.success-message {
-			background-color: rgba(76, 175, 80, 0.1);
-			color: #388e3c;
-			border-left: 4px solid #4caf50;
-		}
-
-		.error-message {
-			background-color: rgba(244, 67, 54, 0.1);
-			color: #d32f2f;
-			border-left: 4px solid #f44336;
-		}
-
-		.hidden {
-			display: none;
-		}
-
-		.loading {
-			text-align: center;
-			padding: 20px;
-			color: #4682b4;
-		}
-
-		.file-count {
-			text-align: center;
-			margin-top: 15px;
-			padding: 5px;
-			font-weight: bold;
-			color: #4682b4;
-		}
-	</style>
+	<link rel="icon" href="/favicon.ico">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Eczar:wght@400;700;800&display=swap">
+	<link rel="stylesheet" href="/style/styles.css">
 </head>
 
 <body>
 	<nav>
 		<ul>
-			<li><a href="../index.html">Home</a></li>
+			<li><a href="/index.html">Home</a></li>
 		</ul>
 	</nav>
 
 	<main>
 		<h2 class="subtitle">Delete Files</h2>
-		<p>Below are the files in the uploads directory. Click the delete button to remove a file.</p>
+		<p class="muted">Files in the uploads directory. Click Delete to remove a file.</p>
 
 		<div id="status-area" class="status-area hidden"></div>
 
@@ -159,10 +55,10 @@
 					const doc = parser.parseFromString(html, 'text/html');
 					const links = Array.from(doc.querySelectorAll('a'));
 
-					// Filter out parent directory links or other non-file links
+					// Filter: only keep links that point into /uploads/
 					const fileLinks = links.filter(link => {
 						const href = link.getAttribute('href');
-						return href;
+						return href && href.startsWith('/uploads/');
 					});
 
 					// Hide loading indicator

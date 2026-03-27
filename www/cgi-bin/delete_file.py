@@ -27,8 +27,7 @@ def fail(msg, status="400 Bad Request"):
 <head>
 	<title>Delete Error</title>
 	<meta charset="UTF-8">
-	<link rel="stylesheet" href="/style/style.css">
-	<link href="https://fonts.googleapis.com/css2?family=Eczar:wght@400;800&family=Annie+Use+Your+Telescope&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="/style/styles.css">
 </head>
 <body>
 	<main>
@@ -104,8 +103,7 @@ try:
 <head>
 	<title>File Deleted</title>
 	<meta charset="UTF-8">
-	<link rel="stylesheet" href="/style/style.css">
-	<link href="https://fonts.googleapis.com/css2?family=Eczar:wght@400;800&family=Annie+Use+Your+Telescope&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="/style/styles.css">
 </head>
 <body>
 	<main>
@@ -134,8 +132,7 @@ except Exception as e:
 <head>
 	<title>Server Error</title>
 	<meta charset="UTF-8">
-	<link rel="stylesheet" href="/style/style.css">
-	<link href="https://fonts.googleapis.com/css2?family=Eczar:wght@400;800&family=Annie+Use+Your+Telescope&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="/style/styles.css">
 </head>
 <body>
 	<main>

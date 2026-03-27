@@ -3,8 +3,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Upload demo</title>
-
+	<title>GET demo</title>
 	<link rel="icon" href="/favicon.ico">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,20 +14,17 @@
 <body>
 	<nav>
 		<ul>
-			<li><a href="/index.html">Home</a></li>
+			<li><a href="../index.html">Home</a></li>
 		</ul>
 	</nav>
-	<main>
-		<h2 class="subtitle">Upload a file</h2>
-		<p class="muted">Select any file (≤ 10 MB) and click <strong>Upload</strong>.</p>
 
-		<form action="/cgi-bin/upload.py"
-			  method="post"
-			  enctype="multipart/form-data">
-			<label for="file">File</label>
-			<input type="file" id="file" name="file" required />
-			<button type="submit">Upload</button>
-		</form>
+	<main class="get-container">
+		<h1 class="get-title">You reached get_demo.html via a simple&nbsp;GET</h1>
+		<p class="get-desc">
+			This page was served by your webserver with an HTTP&nbsp;GET request.
+			The title slides in and fades thanks to a tiny CSS keyframe animation.
+		</p>
+		<a class="button" href="../index.html">Back to main menu</a>
 	</main>
 </body>
 </html>

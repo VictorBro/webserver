@@ -3,15 +3,14 @@
 <html lang="en">
 
 <head>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link
-		href="https://fonts.googleapis.com/css2?family=Annie+Use+Your+Telescope&family=Eczar:wght@400..800&display=swap"
-		rel="stylesheet">
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>WebServer Project</title>
-	<link rel="stylesheet" href="./style/styles.css">
+	<link rel="icon" href="/favicon.ico">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Eczar:wght@400;700;800&display=swap">
+	<link rel="stylesheet" href="/style/styles.css">
 </head>
 
 <body>
@@ -24,6 +23,24 @@
 		</div>
 
 		<section class="features">
+
+			<div class="wrapper">
+				<h2 class="subtitle">GET</h2>
+				<div class="line"></div>
+				<p>Try a simple GET request</p>
+				<a href="./pages/get_demo.html" class="link">
+					<div class="button">Try</div>
+				</a>
+			</div>
+
+			<div class="wrapper">
+				<h2 class="subtitle">POST</h2>
+				<div class="line"></div>
+				<p>Try a POST form submission</p>
+				<a href="./pages/post_demo.html" class="link">
+					<div class="button">Try</div>
+				</a>
+			</div>
 
 			<div class="wrapper">
 				<h2 class="subtitle">DELETE</h2>
@@ -63,8 +80,8 @@
 			<div class="wrapper">
 				<h2 class="subtitle">Custom Error Pages</h2>
 				<div class="line"></div>
-				<p>Display custom 404 Error Pages</p>
-				<a href="./error/404.html" class="link">
+				<p>Explore custom HTTP error pages</p>
+				<a href="./pages/error_pages.html" class="link">
 					<div class="button">Try</div>
 				</a>
 			</div>
@@ -78,10 +95,28 @@
 
 		<section class="features">
 			<div class="wrapper">
-			  <h2 class="subtitle">CGI request inspector</h2>
+			  <h2 class="subtitle">Simple Login</h2>
 			  <div class="line"></div>
-			  <p>Click to try this perl script.</p>
+			  <p>Simple login with session and cookies</p>
+			  <a href="./pages/login.html" class="link">
+				<div class="button">Try</div>
+			  </a>
+			</div>
+
+			<div class="wrapper">
+			  <h2 class="subtitle">CGI — Perl (.pl)</h2>
+			  <div class="line"></div>
+			  <p>Request inspector: dumps all CGI environment variables.</p>
 			  <a href="/cgi-bin/request_inspector.pl" class="link">
+				<div class="button">Try</div>
+			  </a>
+			</div>
+
+			<div class="wrapper">
+			  <h2 class="subtitle">CGI — Python (.py)</h2>
+			  <div class="line"></div>
+			  <p>Weather script: fetches current weather via wttr.in.</p>
+			  <a href="/cgi-bin/weather.py" class="link">
 				<div class="button">Try</div>
 			  </a>
 			</div>
