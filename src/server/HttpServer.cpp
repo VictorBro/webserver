@@ -960,6 +960,19 @@ void HttpServer::handleCloseBracket(const std::string &content_block, VirtualHos
 	case SERVER:
 		inheritServerDirectives(curr_server);
 		addServer(curr_server);
+		{
+			// If the server ended up with no entries in _servers (e.g. duplicate
+			// port/name combination), delete it to avoid a memory leak.
+			bool server_exists = false;
+			for (std::map<ServerKey, VirtualHost *>::iterator it = _servers.begin();
+				 it != _servers.end() && !server_exists; ++it)
+			{
+				if (it->second == curr_server)
+					server_exists = true;
+			}
+			if (!server_exists)
+				delete curr_server;
+		}
 		curr_server = NULL;
 		state = GLOBAL;
 		break;
@@ -1124,6 +1137,16 @@ void HttpServer::setupListenerSockets()
 			freeaddrinfo(ai);
 			throw std::runtime_error(strerr);
 		}
+		// Close listener in CGI child processes automatically on execve()
+		if (fcntl(listener, F_SETFD, FD_CLOEXEC) == -1)
+		{
+			int err = errno;
+			strerr = "fcntl(FD_CLOEXEC, " + key.host + ":" + key.port + "): " + strerror(err);
+			close(listener);
+			closeListenerSockets();
+			freeaddrinfo(ai);
+			throw std::runtime_error(strerr);
+		}
 		// Avoid error of "address already in use" error message
 		setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)); // don't care about return value, do the best effort
 		if (bind(listener, ai->ai_addr, ai->ai_addrlen) < 0)
@@ -1204,6 +1227,13 @@ void HttpServer::handleNewConnection(int listener)
 		{
 			perror("close newfd");
 		}
+		return;
+	}
+	// Close client socket in CGI child processes automatically on execve()
+	if (fcntl(newfd, F_SETFD, FD_CLOEXEC) == -1)
+	{
+		perror("fcntl FD_CLOEXEC newfd");
+		close(newfd);
 		return;
 	}
 
@@ -1703,6 +1733,12 @@ void HttpServer::initEpoll()
 		perror("epoll_create");
 		throw std::runtime_error("epoll_create");
 	}
+	if (fcntl(this->_epfd, F_SETFD, FD_CLOEXEC) == -1)
+	{
+		perror("fcntl FD_CLOEXEC epfd");
+		close(this->_epfd);
+		throw std::runtime_error("epoll_create");
+	}
 
 	for (std::map<int, std::pair<std::string, std::string> >::iterator it = _listeners.begin();
 		 it != _listeners.end(); ++it)
@@ -1926,6 +1962,27 @@ void HttpServer::closeExpiredConnections()
 		 it != timed_out_fds.end(); ++it)
 	{
 		std::cout << "Connection timeout on fd " << *it << std::endl;
+		std::map<int, Connection *>::iterator connIt = _connections.find(*it);
+		if (connIt != _connections.end() && connIt->second->getCgiPid() != -1)
+		{
+			// CGI is still running — send 504 before closing
+			connIt->second->setKeepAlive(false);
+			connIt->second->generateTimeoutResponse();
+			send(*it, connIt->second->getResponse().c_str(),
+				 connIt->second->getResponse().length(), MSG_NOSIGNAL);
+		}
+		else if (connIt != _connections.end())
+		{
+			RequestState state = connIt->second->getRequestState();
+			if (state != S_DONE && state != S_ERROR)
+			{
+				// Client started a request but never finished — send 408
+				connIt->second->setKeepAlive(false);
+				connIt->second->generateRequestTimeoutResponse();
+				send(*it, connIt->second->getResponse().c_str(),
+					 connIt->second->getResponse().length(), MSG_NOSIGNAL);
+			}
+		}
 		handleConnectionClose(*it);
 	}
 }
@@ -1938,7 +1995,7 @@ void HttpServer::run()
 	// Main loop
 	while (g_running) // initialized to true at header file, until a signal is received
 	{
-		int ready = epoll_wait(this->_epfd, _evlist, kMaxEvents, -1);
+		int ready = epoll_wait(this->_epfd, _evlist, kMaxEvents, 1000);
 		if (ready == -1)
 		{
 			perror("epoll_wait");

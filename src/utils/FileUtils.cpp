@@ -48,16 +48,7 @@ void closeFd(int fd)
 
 bool setNonblocking(int fd)
 {
-	int flags = fcntl(fd, F_GETFL, 0);
-	if (flags == -1)
-	{
-		int err = errno;
-		std::cerr << "fcntl F_GETFL error (" << fd << "): " << strerror(err) << std::endl;
-		return false;
-	}
-
-	flags |= O_NONBLOCK;
-	if (fcntl(fd, F_SETFL, flags) == -1)
+	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		int err = errno;
 		std::cerr << "fcntl F_SETFL error (" << fd << "): " << strerror(err) << std::endl;

@@ -59,6 +59,11 @@ def fail(msg, status="400 Bad Request"):
 
 
 try:
+	request_method = os.environ.get("REQUEST_METHOD", "")
+	if request_method != "POST":
+		fail(f"This script only accepts POST requests, got: {request_method}",
+			 status="405 Method Not Allowed")
+
 	# CGI modules parse the multipart body for us
 	form = cgi.FieldStorage()
 
