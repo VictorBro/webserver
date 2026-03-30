@@ -15,8 +15,8 @@ int doWaitpid(pid_t pid, int options)
 	{
 		if (err == ECHILD)
 		{
-			if (DEBUG)
-				std::cout << "waitpid: No child processes" << std::endl;
+			// if (DEBUG)
+			// 	std::cout << "waitpid: No child processes" << std::endl;
 		}
 		else if (err == EINTR)
 		{

@@ -4,6 +4,7 @@
 #include "http/HttpResponse.hpp"
 #include "utils/Consts.hpp"
 #include "utils/StringUtils.hpp"
+#include "utils/Globals.hpp"
 
 HttpResponse::HttpResponse() : _response("")
 {
@@ -44,6 +45,24 @@ void HttpResponse::eraseResponse(int nbytes)
 void HttpResponse::appendResponse(const std::string &data)
 {
 	_response += data;
+}
+
+void HttpResponse::printResponseDBG() const
+{
+	if (!DEBUG)
+		return;
+	std::cout << "================================" << std::endl;
+	// Print only the headers (up to the blank line), not the body
+	size_t headerEnd = _response.find("\r\n\r\n");
+	if (headerEnd == std::string::npos)
+	{
+		std::cout << "Response: " << _response << std::endl;
+		return;
+	}
+	std::string headers = _response.substr(0, headerEnd);
+	std::string body = _response.substr(headerEnd + 4);
+	std::cout << headers << std::endl;
+	std::cout << "Body: [" << body.length() << " bytes]" << std::endl;
 }
 
 void HttpResponse::generateErrorResponse(const std::string &statusCode)

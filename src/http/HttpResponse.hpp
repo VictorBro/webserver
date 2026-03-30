@@ -16,6 +16,7 @@ public:
 	void generateErrorResponse(const std::string &statusCode);
 	void generateErrorResponseFile(const std::string &statusCode, const std::string &filePath);
 	void appendResponse(const std::string &data); // New method to append data to the response
+	void printResponseDBG() const;
 
 private:
 	std::string _response;

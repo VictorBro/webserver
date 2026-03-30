@@ -206,6 +206,26 @@ bool Connection::isKeepAlive() const
 	return _keepAlive;
 }
 
+void Connection::setKeepAlive(bool keepAlive)
+{
+	_keepAlive = keepAlive;
+}
+
+void Connection::generateTimeoutResponse()
+{
+	_response.generateErrorResponse("504");
+}
+
+void Connection::generateRequestTimeoutResponse()
+{
+	_response.generateErrorResponse("408");
+}
+
+RequestState Connection::getRequestState() const
+{
+	return _request.getState();
+}
+
 bool Connection::isAllowdMethod(const std::string &method, const std::map<std::string, bool> methods) const
 {
 	std::map<std::string, bool>::const_iterator it = methods.find(method);
@@ -233,6 +253,8 @@ RequestState Connection::handleClientRecv(const std::string &raw)
 			{
 				std::pair<std::string, std::string> returnDirective = _serverConfig->getReturnDirective();
 				generateReturnDirectiveResponse(returnDirective.first, returnDirective.second);
+				if (DEBUG)
+					_response.printResponseDBG();
 				return _request.getState();
 			}
 			else if (_locationConfig == NULL)
@@ -243,11 +265,15 @@ RequestState Connection::handleClientRecv(const std::string &raw)
 			{
 				std::pair<std::string, std::string> returnDirective = _locationConfig->getReturnDirective();
 				generateReturnDirectiveResponse(returnDirective.first, returnDirective.second);
+				if (DEBUG)
+					_response.printResponseDBG();
 				return _request.getState();
 			}
 			else
 				generateResponse();
 		}
+		if (DEBUG)
+			_response.printResponseDBG();
 		return _request.getState();
 	}
 	catch (const std::exception &e)
@@ -265,10 +291,14 @@ RequestState Connection::handleClientRecv(const std::string &raw)
 				std::string errorPage = it->second;
 				std::string errorPagePath = resolvePath(_serverConfig->getRoot(), errorPage);
 				_response.generateErrorResponseFile(statusCode, errorPagePath);
+				if (DEBUG)
+					_response.printResponseDBG();
 				return S_ERROR;
 			}
 		}
 		_response.generateErrorResponse(statusCode);
+		if (DEBUG)
+			_response.printResponseDBG();
 		return S_ERROR;
 	}
 }
@@ -414,7 +444,8 @@ RequestState Connection::finalizeCgiRecv(int fd)
 			return S_ERROR;
 		}
 		_response.setResponse(buildHttpResponse(statusCode, cgiHeaders, body));
-
+		if (DEBUG)
+			_response.printResponseDBG();
 		return S_DONE;
 }
 
@@ -445,7 +476,7 @@ RequestState Connection::handleCgiRecv(int fd)
 		if (_response.getResponse().length() + nbytes > _webserver->getClientMaxBodySize())
 		{
 			_keepAlive = false;
-			_response.generateErrorResponse("413"); // Request Entity Too Large
+			_response.generateErrorResponse("502"); // Bad Gateway - CGI response too large
 			return S_ERROR;
 		}
 

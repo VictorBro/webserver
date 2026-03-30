@@ -40,9 +40,9 @@ The config file follows a server/location block structure inspired by Nginx.
 ### Quick start example
 
 ```nginx
-client_timeout            75
-client_header_buffer_size 2k
-client_max_body_size      1m
+client_timeout            75;
+client_header_buffer_size 2k;
+client_max_body_size      1m;
 
 server {
     listen      0.0.0.0:8080;
@@ -54,13 +54,15 @@ server {
     cgi_bin .py /usr/bin/python3;
     cgi_bin .pl /usr/bin/perl;
 
-    location /upload {
-        allowed_methods  POST DELETE;
+    # POST and DELETE are handled by CGI scripts.
+    # upload_directory is passed as UPLOAD_DIR to the script.
+    location /cgi-bin {
+        allowed_methods  GET POST DELETE;
         upload_directory /path/to/www/uploads;
     }
 
     location /files {
-        allowed_methods GET DELETE;
+        allowed_methods GET;
         autoindex       on;
     }
 }
@@ -88,23 +90,23 @@ Must appear outside any server block:
 
 | Directive | Usage | Description |
 |---|---|---|
-| `client_timeout` | `client_timeout 75;` | Idle timeout in seconds |
-| `client_header_buffer_size` | `client_header_buffer_size 2k;` | Header buffer limit; size suffix `k`/`m` supported |
-| `client_max_body_size` | `client_max_body_size 1m;` | Request body limit; size suffix `k`/`m` supported |
+| `client_timeout` | `client_timeout 75;` | Idle timeout in seconds; must be a positive integer |
+| `client_header_buffer_size` | `client_header_buffer_size 2k;` | Header buffer limit; if exceeded returns 413. Size: plain bytes (`1024`), kilobytes (`1k`/`1K`), megabytes (`1m`/`1M`) |
+| `client_max_body_size` | `client_max_body_size 1m;` | Request body limit; if `Content-Length` exceeds this returns 413. Same size format as above |
 
 ### Server block directives
 
 | Directive | Usage | Notes |
 |---|---|---|
-| `listen` | `listen ip:port;` | Multiple allowed; binds to address/port pair |
-| `server_name` | `server_name name1 name2;` | Multiple declarations allowed |
-| `root` | `root /path;` | Document root |
-| `index` | `index file1 file2;` | Default files for directory requests |
-| `error_page` | `error_page 404 /404.html;` | Multiple codes per line allowed |
-| `allowed_methods` | `allowed_methods GET POST;` | Overrides global default |
-| `autoindex` | `autoindex on;` | Directory listing |
-| `cgi_bin` | `cgi_bin .py /usr/bin/python3;` | Maps extension to CGI executable |
-| `return` | `return 301 http://example.com;` | Redirect or text response; takes precedence over all location blocks |
+| `listen` | `listen ip:port;` | Multiple declarations allowed; each binds to a different address/port pair |
+| `server_name` | `server_name name1 name2;` | Multiple declarations allowed; all names accumulate and are used for virtual host matching via the `Host` header. If no `Host` matches any name, the first server for that port is used as the default |
+| `root` | `root /path;` | Document root; must be an absolute path |
+| `index` | `index file1 file2;` | Default files for directory requests; tried in order |
+| `error_page` | `error_page 404 /404.html;` | Multiple codes per line: `error_page 500 502 503 /50x.html;` |
+| `allowed_methods` | `allowed_methods GET POST;` | Overrides global default; valid values: `GET`, `POST`, `DELETE` |
+| `autoindex` | `autoindex on;` | Enable directory listing when no index file is found |
+| `cgi_bin` | `cgi_bin .py /usr/bin/python3;` | Maps file extension to CGI executable; multiple declarations allowed for different extensions |
+| `return` | `return 301 http://example.com;` | Redirect or text response; server-level `return` takes precedence over all location blocks and is evaluated before any routing |
 
 #### `return` directive
 
@@ -117,8 +119,29 @@ return 200 "OK";                    # text response
 return 403 "Access Denied";
 ```
 
-Valid status codes for redirects: `301`, `302`, `303`, `307`, `308`.
+Valid status codes for redirects: `301`, `302`, `303`, `307`, `308`.  
 Valid range for text responses: `100`–`599`.
+
+**Precedence rules:**
+- A server-level `return` takes priority over every location block in that server.
+- Only the first `return` in a given context is effective; subsequent ones are ignored.
+
+```nginx
+server {
+    return 301 http://example.com;   # evaluated first — location blocks never reached
+
+    location / {
+        return 302 http://other.com; # never reached
+    }
+}
+
+server {
+    location / {
+        return 301 http://first.com;  # this wins
+        return 302 http://second.com; # ignored
+    }
+}
+```
 
 ### Location block directives
 
@@ -187,9 +210,8 @@ server {
         return 302 http://example.com/special;
     }
 
-    location /upload {
-        root             /var;
-        allowed_methods  POST;
+    location /cgi-bin {
+        allowed_methods  GET POST DELETE;
         upload_directory /var/www/uploads;
     }
 }
