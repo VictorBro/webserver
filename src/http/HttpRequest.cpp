@@ -126,6 +126,8 @@ void HttpRequest::parseRequest(const std::string &raw)
 			_headerLength++;
 			break;
 		case S_VERSION:
+			if (!isValidAbsolutePath(_target))
+				throw std::runtime_error("403");
 			parseVersion(c);
 			_headerLength++;
 			break;
