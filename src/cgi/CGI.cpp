@@ -277,6 +277,12 @@ void CGI::start(const HttpRequest &request, const std::string &cgiPath, const st
 
 		try
 		{
+			const std::string	scriptDir = scriptPath.substr(0, scriptPath.find_last_of("/"));
+			if (chdir(scriptDir.c_str()) == -1)
+			{
+				perror("chdir");
+				exit(EXIT_FAILURE);
+			}
 			envp = createEnv(request, scriptPath, localPort, remoteHost, uploadDir);
 			if (envp == NULL)
 			{
