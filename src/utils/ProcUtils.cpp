@@ -7,9 +7,9 @@
 
 pid_t doWaitpid(pid_t pid, int options, int &statusOut, int &codeOut)
 {
-	int err;
+	codeOut = -1;
 	pid_t exitedPid = waitpid(pid, &statusOut, options);
-	err = errno;
+	int err = errno;
 	if (exitedPid == -1)
 	{
 		if (err == ECHILD)
@@ -48,7 +48,6 @@ pid_t doWaitpid(pid_t pid, int options, int &statusOut, int &codeOut)
 	else
 	{
 		std::cerr << exitedPid << ": child process terminated abnormally" << std::endl;
-		codeOut = -1;
 	}
 	return (exitedPid);
 }
