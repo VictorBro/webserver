@@ -5,10 +5,10 @@
 #include "utils/ProcUtils.hpp"
 #include "utils/Globals.hpp"
 
-pid_t doWaitpid(pid_t pid, int options, int &status, int &code)
+pid_t doWaitpid(pid_t pid, int options, int &statusOut, int &codeOut)
 {
 	int err;
-	pid_t exitedPid = waitpid(pid, &status, options);
+	pid_t exitedPid = waitpid(pid, &statusOut, options);
 	err = errno;
 	if (exitedPid == -1)
 	{
@@ -33,22 +33,22 @@ pid_t doWaitpid(pid_t pid, int options, int &status, int &code)
 		// No status available (WNOHANG was specified and no child has exited)
 		return 0;
 	}
-	if (WIFEXITED(status))
+	if (WIFEXITED(statusOut))
 	{
 		if (DEBUG)
-			std::cout << exitedPid << ": child process exited with status: " << WEXITSTATUS(status) << std::endl;
-		code = WEXITSTATUS(status);
+			std::cout << exitedPid << ": child process exited with status: " << WEXITSTATUS(statusOut) << std::endl;
+		codeOut = WEXITSTATUS(statusOut);
 	}
-	else if (WIFSIGNALED(status))
+	else if (WIFSIGNALED(statusOut))
 	{
 		if (DEBUG)
-			std::cout << exitedPid << ": child process terminated by signal: " << 128 + WTERMSIG(status) << std::endl;
-		code = WTERMSIG(status) + 128;
+			std::cout << exitedPid << ": child process terminated by signal: " << 128 + WTERMSIG(statusOut) << std::endl;
+		codeOut = WTERMSIG(statusOut) + 128;
 	}
 	else
 	{
 		std::cerr << exitedPid << ": child process terminated abnormally" << std::endl;
-		code = -1;
+		codeOut = -1;
 	}
 	return (exitedPid);
 }
