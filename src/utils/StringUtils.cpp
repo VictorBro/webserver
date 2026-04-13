@@ -229,7 +229,7 @@ std::string normalizePath(const std::string &path)
 
 	while (std::getline(stream, segment, '/'))
 	{
-		if (segment == ".")
+		if (segment.empty() || segment == ".")
 			continue;
 		else if (segment == "..")
 		{
@@ -250,13 +250,17 @@ std::string normalizePath(const std::string &path)
 			result += "/";
 	}
 
-	// Preserve trailing slash when the original path ended with '/', '/.', or '/..'
-	// but avoid producing "//" when result is already just "/"
-	if (path.length() > 1 && (path[path.length() - 1] == '/'
-		|| (path.length() >= 2 && path[path.length() - 1] == '.' && path[path.length() - 2] == '/')))
+	// Preserve trailing slash when the original path ended with '/', '/.' or '/..'
+	// but avoid producing "//" when result already ends with '/'
+	if (path.length() > 1 && result[result.length() - 1] != '/')
 	{
-		if (result.length() > 1 || result[result.length() - 1] != '/')
+		char last = path[path.length() - 1];
+		if (last == '/'
+			|| (last == '.' && path[path.length() - 2] == '/')
+			|| (last == '.' && path.length() >= 3 && path[path.length() - 2] == '.' && path[path.length() - 3] == '/'))
+		{
 			result += "/";
+		}
 	}
 
 	return result;
