@@ -211,7 +211,9 @@ void HttpServer::reapDeadChildren(int timeoutMs, int checkIntervalMs)
 
 	while (elapsedMs < timeoutMs)
 	{
-		int pid = doWaitpid(-1, WNOHANG);
+		int status = 0;
+		int code = 0;
+		pid_t pid = doWaitpid(-1, WNOHANG, status, code);
 		if (pid > 0)
 		{
 			_cgiPids.erase(pid);
@@ -2007,7 +2009,9 @@ void HttpServer::run()
 		// reap every dead child
 		for (;;)
 		{
-			int pid = doWaitpid(-1, WNOHANG); // -1 = “any child”
+			int status = 0;
+			int code = 0;
+			pid_t pid = doWaitpid(-1, WNOHANG, status, code); // -1 = “any child”
 			if (pid <= 0)
 				break;
 			_cgiPids.erase(pid);

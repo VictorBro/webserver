@@ -63,7 +63,9 @@ void CGI::reset()
 		}
 		else
 		{
-			doWaitpid(_pid, WNOHANG);
+			int status = 0;
+			int code = 0;
+			doWaitpid(_pid, WNOHANG, status, code);
 		}
 	}
 	_pid = -1;
