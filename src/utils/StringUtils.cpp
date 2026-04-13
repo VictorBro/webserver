@@ -1,6 +1,7 @@
 #include <ctime>
 #include <sstream>
 #include <iostream>
+#include <stdexcept>
 #include <cstdlib> // for atoi
 #include <arpa/inet.h>
 #include "utils/StringUtils.hpp"
@@ -249,9 +250,14 @@ std::string normalizePath(const std::string &path)
 			result += "/";
 	}
 
-	// Preserve trailing slash
-	if (path.length() > 1 && path[path.length() - 1] == '/')
-		result += "/";
+	// Preserve trailing slash when the original path ended with '/', '/.', or '/..'
+	// but avoid producing "//" when result is already just "/"
+	if (path.length() > 1 && (path[path.length() - 1] == '/'
+		|| (path.length() >= 2 && path[path.length() - 1] == '.' && path[path.length() - 2] == '/')))
+	{
+		if (result.length() > 1 || result[result.length() - 1] != '/')
+			result += "/";
+	}
 
 	return result;
 }
