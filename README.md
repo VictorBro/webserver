@@ -1,5 +1,5 @@
 
-*This project has been created as part of the 42 curriculum by vbronov.*
+*This project has been created as part of the 42 curriculum by vbronov, nicpinar.*
 
 # webserv
 
