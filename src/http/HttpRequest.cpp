@@ -196,7 +196,7 @@ void HttpRequest::parseStart(unsigned char c)
 		_state = S_RESTART;
 		return;
 	}
-	else if (c == 'G' || c == 'P' || c == 'D') // GET POST DELETE
+	else if (c == 'G' || c == 'P' || c == 'D' || c == 'H' || c == 'O' || c == 'T' || c == 'C')
 	{
 		_headerLength++;
 		_method += c;
@@ -223,30 +223,21 @@ void HttpRequest::parseRestart(unsigned char c)
 
 void HttpRequest::parseMethod(unsigned char c)
 {
-	if (_method.length() > 6)
-	{
-		_state = S_ERROR;
-		throw std::runtime_error("405");
-	}
 	// GET POST or DELETE
-	else if (c == 'E' || c == 'T' || c == 'U' || c == 'L' || c == 'O' || c == 'S')
-	{
+	if (c != ' ')
 		_method += c;
-	}
-	else if (c == ' ')
+	else
 	{
 		if (_method == "GET" || _method == "POST" || _method == "DELETE")
 			_state = SP_BEFORE_URI;
 		else
 		{
 			_state = S_ERROR;
-			throw std::runtime_error("405");
+			if (_method == "PUT" || _method == "HEAD" || _method == "OPTIONS" || _method == "TRACE" || _method == "CONNECT"
+				|| _method == "PATCH")
+				throw std::runtime_error("501");
+			throw std::runtime_error("400");
 		}
-	}
-	else
-	{
-		_state = S_ERROR;
-		throw std::runtime_error("405");
 	}
 }
 
