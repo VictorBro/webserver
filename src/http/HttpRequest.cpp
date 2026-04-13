@@ -276,16 +276,19 @@ void HttpRequest::parseUri(unsigned char c)
 	}
 	else if (c == ' ')
 	{
+		_state = S_ERROR;
 		_target = normalizePath(_target);
 		_state = SP_BEFORE_VERSION;
 	}
 	else if (c == '?')
 	{
+		_state = S_ERROR;
 		_target = normalizePath(_target);
 		_state = S_QUERY;
 	}
 	else if (c == '#')
 	{
+		_state = S_ERROR;
 		_target = normalizePath(_target);
 		_state = S_FRAGMENT;
 	}
