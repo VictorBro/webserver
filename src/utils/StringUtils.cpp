@@ -211,3 +211,47 @@ std::string numberToString(size_t value)
 	ss << value;
 	return ss.str();
 }
+
+// Normalize a URI path by resolving '.' and '..' segments (RFC 3986).
+// Throws 400 if the normalized path escapes the root (starts with '/..').
+std::string normalizePath(const std::string &path)
+{
+	if (path.empty() || path[0] != '/')
+		return path;
+
+	std::vector<std::string> segments;
+	std::string segment;
+	std::istringstream stream(path);
+
+	// Skip the leading '/'
+	std::getline(stream, segment, '/');
+
+	while (std::getline(stream, segment, '/'))
+	{
+		if (segment == ".")
+			continue;
+		else if (segment == "..")
+		{
+			if (!segments.empty())
+				segments.pop_back();
+			else
+				throw std::runtime_error("400");
+		}
+		else
+			segments.push_back(segment);
+	}
+
+	std::string result = "/";
+	for (size_t i = 0; i < segments.size(); ++i)
+	{
+		result += segments[i];
+		if (i + 1 < segments.size())
+			result += "/";
+	}
+
+	// Preserve trailing slash
+	if (path.length() > 1 && path[path.length() - 1] == '/')
+		result += "/";
+
+	return result;
+}

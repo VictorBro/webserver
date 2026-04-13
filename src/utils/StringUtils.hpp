@@ -14,3 +14,4 @@ std::string getCurrentTime();
 bool validHttpRequestChar(char c);
 std::string trimFromEnd(const std::string &str);
 std::string numberToString(size_t value);
+std::string normalizePath(const std::string &path);

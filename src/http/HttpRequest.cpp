@@ -126,8 +126,6 @@ void HttpRequest::parseRequest(const std::string &raw)
 			_headerLength++;
 			break;
 		case S_VERSION:
-			if (!isValidAbsolutePath(_target))
-				throw std::runtime_error("403");
 			parseVersion(c);
 			_headerLength++;
 			break;
@@ -277,11 +275,20 @@ void HttpRequest::parseUri(unsigned char c)
 		throw std::runtime_error("400");
 	}
 	else if (c == ' ')
+	{
+		_target = normalizePath(_target);
 		_state = SP_BEFORE_VERSION;
+	}
 	else if (c == '?')
+	{
+		_target = normalizePath(_target);
 		_state = S_QUERY;
+	}
 	else if (c == '#')
+	{
+		_target = normalizePath(_target);
 		_state = S_FRAGMENT;
+	}
 	else
 		_target += c;
 }
