@@ -560,7 +560,20 @@ void Connection::setServerAndLocation()
 	if (_serverConfig != NULL)
 		return;
 	const std::map<ServerKey, VirtualHost *> &servers = _webserver->getServers();
-	ServerKey key(_port, _host, _request.getHostName());
+	std::string	hostName = _request.getHostName();
+	if (!hostName.empty() && hostName[0] == '[')
+	{
+		size_t bracket = hostName.find(']');
+		if (bracket != std::string::npos)
+			hostName = hostName.substr(0, bracket + 1);
+	}
+	else
+	{
+		size_t colon = hostName.find(':');
+		if (colon != std::string::npos)
+			hostName = hostName.substr(0, colon);
+	}
+	ServerKey key(_port, _host, hostName);
 	std::map<ServerKey, VirtualHost *>::const_iterator it = servers.find(key);
 	if (it != servers.end())
 	{
@@ -578,7 +591,7 @@ void Connection::setServerAndLocation()
 	if (_serverConfig == NULL)
 	{
 		key.host = kDefaultHost;
-		key.server_name = _request.getHostName();
+		key.server_name = hostName;
 		it = servers.find(key);
 		if (it != servers.end())
 		{
