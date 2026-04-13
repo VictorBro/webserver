@@ -277,7 +277,8 @@ void CGI::start(const HttpRequest &request, const std::string &cgiPath, const st
 
 		try
 		{
-			const std::string	scriptDir = scriptPath.substr(0, scriptPath.find_last_of("/"));
+			size_t lastSlash = scriptPath.find_last_of("/");
+			const std::string scriptDir = (lastSlash == 0) ? "/" : scriptPath.substr(0, lastSlash);
 			if (chdir(scriptDir.c_str()) == -1)
 			{
 				perror("chdir");
