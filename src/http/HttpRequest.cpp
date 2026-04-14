@@ -531,8 +531,7 @@ void HttpRequest::parseHeaderEnd(unsigned char c)
 			// e.g. "gzip, chunked" -> chunked is final but we don't support gzip (501)
 			// e.g. "chunked, gzip" or "gzip" -> chunked not final (400)
 			_state = S_ERROR;
-			size_t pos = te.rfind("chunked");
-			if (pos != std::string::npos && pos + 7 == te.length() && pos > 0)
+			if (te.length() > 9 && te.substr(te.length() - 9) == ", chunked")
 				throw std::runtime_error("501");
 			throw std::runtime_error("400");
 		}
