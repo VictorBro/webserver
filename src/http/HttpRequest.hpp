@@ -47,7 +47,6 @@ private:
 	std::string _currentHeaderName;
 	std::string _currentHeaderValue;
 	size_t _expectedBodyLength;
-	bool _isChunked; // true if transfer-encoding is chunked
 
 	// Chunked encoding variables
 	size_t _currentChunkSize;	 // Size of current chunk being processed
