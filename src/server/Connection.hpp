@@ -60,8 +60,6 @@ public:
 
 	bool isKeepAlive() const;
 	void setKeepAlive(bool keepAlive);
-	void generateTimeoutResponse();
-	void generateRequestTimeoutResponse();
 	RequestState getRequestState() const;
 	bool isAllowdMethod(const std::string &method, const std::map<std::string, bool> methods) const;
 	std::string generateAutoIndex(const std::string &path, const std::string &target) const;
