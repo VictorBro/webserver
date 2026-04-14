@@ -22,7 +22,6 @@ HttpRequest::HttpRequest(int clientHeaderBufferSize, int clientMaxBodySize) : _s
 																			  _currentHeaderName(""),
 																			  _currentHeaderValue(""),
 																			  _expectedBodyLength(0),
-																			  _isChunked(false),
 																			  _currentChunkSize(0),
 																			  _currentChunkRead(0),
 																			  _chunkSizeLine("")
@@ -42,7 +41,6 @@ HttpRequest::HttpRequest(const HttpRequest &src) : _state(src._state),
 												   _currentHeaderName(src._currentHeaderName),
 												   _currentHeaderValue(src._currentHeaderValue),
 												   _expectedBodyLength(src._expectedBodyLength),
-												   _isChunked(src._isChunked),
 												   _currentChunkSize(src._currentChunkSize),
 												   _currentChunkRead(src._currentChunkRead),
 												   _chunkSizeLine(src._chunkSizeLine)
@@ -66,7 +64,6 @@ HttpRequest &HttpRequest::operator=(const HttpRequest &src)
 		_currentHeaderName = src._currentHeaderName;
 		_currentHeaderValue = src._currentHeaderValue;
 		_expectedBodyLength = src._expectedBodyLength;
-		_isChunked = src._isChunked;
 		_currentChunkSize = src._currentChunkSize;
 		_currentChunkRead = src._currentChunkRead;
 		_chunkSizeLine = src._chunkSizeLine;
@@ -223,10 +220,7 @@ void HttpRequest::parseRestart(unsigned char c)
 
 void HttpRequest::parseMethod(unsigned char c)
 {
-	// GET POST or DELETE
-	if (c != ' ')
-		_method += c;
-	else
+	if (c == ' ')
 	{
 		if (_method == "GET" || _method == "POST" || _method == "DELETE")
 			_state = SP_BEFORE_URI;
@@ -238,6 +232,20 @@ void HttpRequest::parseMethod(unsigned char c)
 				throw std::runtime_error("501");
 			throw std::runtime_error("400");
 		}
+	}
+	else if (c >= 'A' && c <= 'Z')
+	{
+		if (_method.length() >= 7)
+		{
+			_state = S_ERROR;
+			throw std::runtime_error("501");
+		}
+		_method += c;
+	}
+	else
+	{
+		_state = S_ERROR;
+		throw std::runtime_error("400");
 	}
 }
 
@@ -428,8 +436,6 @@ void HttpRequest::parseHeaderValue(unsigned char c)
 		_currentHeaderValue = trimFromEnd(_currentHeaderValue);
 		if (_currentHeaderName == "transfer-encoding" && _headers.find("transfer-encoding") != _headers.end())
 		{
-			if (_currentHeaderValue == "chunked")
-				_isChunked = true;
 			_headers["transfer-encoding"] += ", " + _currentHeaderValue;
 		}
 		else if (_currentHeaderName == "connection")
@@ -507,14 +513,30 @@ void HttpRequest::parseHeaderEnd(unsigned char c)
 {
 	if (c == '\n')
 	{
-		// Check if there is a body
-		if (_headers.find("transfer-encoding") != _headers.end() &&
-			_headers["transfer-encoding"].find("chunked") != std::string::npos)
+		bool hasTE = _headers.find("transfer-encoding") != _headers.end();
+		bool hasCL = _headers.find("content-length") != _headers.end();
+
+		if (hasTE)
 		{
-			_state = S_HEX;
-			return;
+			const std::string &te = _headers["transfer-encoding"];
+			if (te == "chunked")
+			{
+				// If both TE and CL present, process TE but force connection close
+				if (hasCL)
+					_headers["connection"] = "close";
+				_state = S_HEX;
+				return;
+			}
+			// te != "chunked": check if chunked is at least the final coding
+			// e.g. "gzip, chunked" -> chunked is final but we don't support gzip (501)
+			// e.g. "chunked, gzip" or "gzip" -> chunked not final (400)
+			_state = S_ERROR;
+			size_t pos = te.rfind("chunked");
+			if (pos != std::string::npos && pos + 7 == te.length() && pos > 0)
+				throw std::runtime_error("501");
+			throw std::runtime_error("400");
 		}
-		else if (_headers.find("content-length") != _headers.end())
+		else if (hasCL)
 		{
 			try
 			{
