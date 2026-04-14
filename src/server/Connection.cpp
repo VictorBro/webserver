@@ -211,16 +211,6 @@ void Connection::setKeepAlive(bool keepAlive)
 	_keepAlive = keepAlive;
 }
 
-void Connection::generateTimeoutResponse()
-{
-	_response.generateErrorResponse("504");
-}
-
-void Connection::generateRequestTimeoutResponse()
-{
-	_response.generateErrorResponse("408");
-}
-
 RequestState Connection::getRequestState() const
 {
 	return _request.getState();

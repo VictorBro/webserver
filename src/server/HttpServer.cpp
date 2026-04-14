@@ -1958,33 +1958,11 @@ void HttpServer::closeExpiredConnections()
 			timed_out_fds.push_back(it->first);
 		}
 	}
-
 	// Then close them
 	for (std::vector<int>::iterator it = timed_out_fds.begin();
 		 it != timed_out_fds.end(); ++it)
 	{
 		std::cout << "Connection timeout on fd " << *it << std::endl;
-		std::map<int, Connection *>::iterator connIt = _connections.find(*it);
-		if (connIt != _connections.end() && connIt->second->getCgiPid() != -1)
-		{
-			// CGI is still running — send 504 before closing
-			connIt->second->setKeepAlive(false);
-			connIt->second->generateTimeoutResponse();
-			send(*it, connIt->second->getResponse().c_str(),
-				 connIt->second->getResponse().length(), MSG_NOSIGNAL);
-		}
-		else if (connIt != _connections.end())
-		{
-			RequestState state = connIt->second->getRequestState();
-			if (state != S_DONE && state != S_ERROR)
-			{
-				// Client started a request but never finished — send 408
-				connIt->second->setKeepAlive(false);
-				connIt->second->generateRequestTimeoutResponse();
-				send(*it, connIt->second->getResponse().c_str(),
-					 connIt->second->getResponse().length(), MSG_NOSIGNAL);
-			}
-		}
 		handleConnectionClose(*it);
 	}
 }
